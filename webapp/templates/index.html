@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1>信息安全密码算法接口化实现与可测验证平台</h1>
+  <p>当前为可运行系统骨架：页面导航、分类模板、算法页占位区已打通。</p>
+  <div class="quick-links">
+    <a class="btn" href="{{ url_for('symmetric.index') }}">对称加密</a>
+    <a class="btn" href="{{ url_for('hash.index') }}">哈希与派生</a>
+    <a class="btn" href="{{ url_for('encoding.index') }}">编码</a>
+    <a class="btn" href="{{ url_for('asymmetric.index') }}">公钥与签名</a>
+  </div>
+</section>
+{% endblock %}

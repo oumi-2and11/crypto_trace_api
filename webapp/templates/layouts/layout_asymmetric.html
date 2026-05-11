@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block main_class %}with-sidebar{% endblock %}
+
+{% block content %}
+  <aside class="sidebar">
+    <h2>公钥与签名</h2>
+    <p>算法实现后将接入签名、验签与密钥参数。</p>
+    <a href="{{ url_for('asymmetric.rsa') }}" class="sidebar-link {{ 'active' if current_algorithm == 'rsa' else '' }}">RSA</a>
+    <a href="{{ url_for('asymmetric.rsa_sha1') }}" class="sidebar-link {{ 'active' if current_algorithm == 'rsa_sha1' else '' }}">RSA-SHA1</a>
+    <a href="{{ url_for('asymmetric.ecc') }}" class="sidebar-link {{ 'active' if current_algorithm == 'ecc' else '' }}">ECC</a>
+    <a href="{{ url_for('asymmetric.ecdsa') }}" class="sidebar-link {{ 'active' if current_algorithm == 'ecdsa' else '' }}">ECDSA</a>
+  </aside>
+  <section class="content">
+    {% block category_content %}{% endblock %}
+  </section>
+{% endblock %}

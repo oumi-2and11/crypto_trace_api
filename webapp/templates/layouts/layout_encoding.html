@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block main_class %}with-sidebar{% endblock %}
+
+{% block content %}
+  <aside class="sidebar">
+    <h2>编码</h2>
+    <p>编码算法页面骨架。</p>
+    <a href="{{ url_for('encoding.base64') }}" class="sidebar-link {{ 'active' if current_algorithm == 'base64' else '' }}">Base64</a>
+    <a href="{{ url_for('encoding.utf8') }}" class="sidebar-link {{ 'active' if current_algorithm == 'utf8' else '' }}">UTF-8</a>
+  </aside>
+  <section class="content">
+    {% block category_content %}{% endblock %}
+  </section>
+{% endblock %}
