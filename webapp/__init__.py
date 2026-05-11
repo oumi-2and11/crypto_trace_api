@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 
 from .views.asymmetric_views import asymmetric_bp
 from .views.encoding_views import encoding_bp
@@ -6,6 +6,11 @@ from .views.hash_views import hash_bp
 from .views.home import home_bp
 from .views.selftest_views import selftest_bp
 from .views.symmetric_views import symmetric_bp
+
+# API 蓝图
+from .views.encoding_api import encoding_api_bp
+from .views.hash_api import hash_api_bp
+from .views.selftest_api import selftest_api_bp
 
 
 TOP_NAV = [
@@ -29,6 +34,11 @@ def create_app(config_object: str = "config.Config") -> Flask:
     app.register_blueprint(encoding_bp)
     app.register_blueprint(asymmetric_bp)
     app.register_blueprint(selftest_bp)
+
+    # API 蓝图
+    app.register_blueprint(encoding_api_bp)
+    app.register_blueprint(hash_api_bp)
+    app.register_blueprint(selftest_api_bp)
 
     @app.context_processor
     def inject_nav_data():

@@ -32,5 +32,143 @@
       信息安全密码算法接口化实现与可测验证平台 · CryptoTrace v0.1 (MVP)
     </div>
   </footer>
+
+  <script>
+  // ---- Base64 ----
+  function runBase64() {
+    var op = document.getElementById('b64-op').value;
+    var input = document.getElementById('b64-input').value;
+    var encoding = document.getElementById('b64-encoding').value;
+    var output = document.getElementById('b64-output').value;
+    var trace = document.getElementById('b64-trace').checked;
+    var url = '/api/encoding/base64/' + op;
+    var body = {data: input, encoding: encoding, output: output, trace: trace};
+    apiCall(url, body, function(r) {
+      var field = op === 'encode' ? 'base64' : 'data';
+      document.getElementById('b64-result').textContent = r.result ? r.result[field] : r.status_message;
+      document.getElementById('b64-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+      renderTrace('b64-trace', r.trace);
+    });
+  }
+
+  // ---- UTF-8 ----
+  function runUtf8() {
+    var op = document.getElementById('u8-op').value;
+    var output = document.getElementById('u8-output').value;
+    var trace = document.getElementById('u8-trace').checked;
+    var url = '/api/encoding/utf8/' + op;
+    var body;
+    if (op === 'encode') {
+      body = {text: document.getElementById('u8-text').value, output: output, trace: trace};
+    } else {
+      body = {data: document.getElementById('u8-hex').value, encoding: 'hex', output: output, trace: trace};
+    }
+    apiCall(url, body, function(r) {
+      document.getElementById('u8-result').textContent = r.result ? (r.result.data || JSON.stringify(r.result)) : r.status_message;
+      document.getElementById('u8-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+      renderTrace('u8-trace', r.trace);
+    });
+  }
+
+  // ---- SHA-256 ----
+  function runSha256() {
+    var input = document.getElementById('sha-input').value;
+    var encoding = document.getElementById('sha-encoding').value;
+    var output = document.getElementById('sha-output').value;
+    var trace = document.getElementById('sha-trace').checked;
+    var traceLevel = parseInt(document.getElementById('sha-trace-level').value);
+    var body = {algorithm: 'SHA256', data: input, encoding: encoding, output: output, trace: trace, trace_level: traceLevel};
+    apiCall('/api/hash/digest', body, function(r) {
+      document.getElementById('sha-result').textContent = r.result ? r.result.digest : r.status_message;
+      document.getElementById('sha-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+      renderTrace('sha-trace', r.trace);
+    });
+  }
+
+  // ---- SelfTest ----
+  function runSelftest() {
+    document.getElementById('selftest-summary').textContent = '正在运行...';
+    apiCall('/api/selftest/run', {}, function(r) {
+      var s = r.result.summary;
+      document.getElementById('selftest-summary').innerHTML =
+        '<strong>总计 ' + s.total + '</strong> | ' +
+        '<span style="color:#16a34a">通过 ' + s.pass + '</span> | ' +
+        '<span style="color:#dc2626">失败 ' + s.fail + '</span> | ' +
+        '<span style="color:#94a3b8">待实现 ' + s.not_implemented + '</span> | ' +
+        '耗时: ' + r.time_ms.toFixed(3) + ' ms';
+
+      // 更新各算法状态
+      var items = document.querySelectorAll('.selftest-item');
+      items.forEach(function(item) {
+        var algo = item.getAttribute('data-algo');
+        var statusEl = item.querySelector('.algo-status');
+        if (!statusEl) return;
+        statusEl.className = 'algo-status';
+        var found = false;
+        r.result.cases.forEach(function(c) {
+          if (c.name.indexOf(algo) >= 0 || c.name === algo) {
+            if (c.status === 'not_implemented') {
+              statusEl.textContent = '待实现';
+              statusEl.classList.add('st-na');
+            } else if (c.pass) {
+              statusEl.textContent = 'PASS';
+              statusEl.classList.add('st-pass');
+            } else {
+              statusEl.textContent = 'FAIL';
+              statusEl.classList.add('st-fail');
+            }
+            found = true;
+          }
+        });
+        if (!found && statusEl.textContent === '待验证') {
+          statusEl.textContent = '待实现';
+          statusEl.classList.add('st-na');
+        }
+      });
+
+      // 详情表
+      var html = '<table class="detail-table"><thead><tr><th>测试用例</th><th>结果</th><th>耗时</th></tr></thead><tbody>';
+      r.result.cases.forEach(function(c) {
+        var cls = c.pass === true ? 'st-pass' : (c.pass === false ? 'st-fail' : 'st-na');
+        var label = c.pass === true ? 'PASS' : (c.pass === false ? 'FAIL' : 'N/A');
+        html += '<tr><td>' + c.name + '</td><td class="' + cls + '">' + label + '</td><td>' + (c.time_ms ? c.time_ms.toFixed(3) + ' ms' : '-') + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('selftest-detail').innerHTML = html;
+    });
+  }
+
+  // ---- 通用 ----
+  function apiCall(url, body, callback) {
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    })
+    .then(function(r) { return r.json(); })
+    .then(callback)
+    .catch(function(e) { alert('请求失败: ' + e.message); });
+  }
+
+  function renderTrace(elId, trace) {
+    var el = document.getElementById(elId);
+    if (!trace) { el.textContent = 'Trace 未开启或无数据'; return; }
+    var html = '';
+    if (trace.algorithm) html += '<div class="trace-meta">算法: ' + trace.algorithm;
+    if (trace.operation) html += ' | 操作: ' + trace.operation;
+    html += '</div>';
+    if (trace.steps && trace.steps.length > 0) {
+      html += '<table class="trace-table"><thead><tr><th>步骤</th><th>数据</th></tr></thead><tbody>';
+      trace.steps.forEach(function(s) {
+        html += '<tr><td>' + s.name + '</td><td>';
+        var data = Object.assign({}, s);
+        delete data.name;
+        html += '<pre>' + JSON.stringify(data, null, 2) + '</pre></td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+    el.innerHTML = html;
+  }
+  </script>
 </body>
 </html>

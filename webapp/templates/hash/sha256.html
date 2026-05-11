@@ -1,7 +1,57 @@
 {% extends "layouts/layout_hash.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "SHA256" %}
-{% set algorithm_desc = "SHA256 哈希算法页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>SHA-256</h1>
+<p class="algo-desc">SHA-256 哈希算法，输出 256 位摘要，支持 Level 2 Trace 展示中间过程。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>输入数据</label>
+      <textarea id="sha-input" rows="4" placeholder="输入数据，如：616263 (hex) 或 abc (text)"></textarea>
+    </div>
+    <div class="form-group">
+      <label>输入编码</label>
+      <select id="sha-encoding">
+        <option value="hex">Hex (十六进制)</option>
+        <option value="text">Text (文本)</option>
+        <option value="base64">Base64</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>输出编码</label>
+      <select id="sha-output">
+        <option value="hex">Hex (十六进制)</option>
+        <option value="base64">Base64</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="sha-trace"> 开启 Trace</label>
+      <label style="margin-left:16px;">Trace 级别
+        <select id="sha-trace-level">
+          <option value="1">Level 1 (摘要)</option>
+          <option value="2">Level 2 (过程)</option>
+        </select>
+      </label>
+    </div>
+    <button class="btn" onclick="runSha256()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>SHA-256 无额外参数，固定输出 256 位 (32 字节) 摘要。</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="sha-result" class="result-box">等待执行...</div>
+    <div id="sha-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="sha-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
 {% endblock %}

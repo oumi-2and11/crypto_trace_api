@@ -382,6 +382,140 @@ a:hover { color: var(--sky-hover); }
   margin-top: auto;
 }
 
+/* ── Form Controls ── */
+.form-group {
+  margin-bottom: 14px;
+}
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.form-group select,
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color var(--transition);
+}
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.form-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.form-row select {
+  width: auto;
+  padding: 4px 10px;
+}
+
+/* ── Result & Trace ── */
+.result-box {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 14px;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+  white-space: pre-wrap;
+  min-height: 48px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.result-time {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.trace-box {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-height: 48px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.trace-meta {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.trace-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.trace-table th,
+.trace-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.trace-table th {
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+}
+.trace-table pre {
+  margin: 0;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ── SelfTest Status ── */
+.st-pass { color: #16a34a; font-weight: 700; }
+.st-fail { color: #dc2626; font-weight: 700; }
+.st-na   { color: var(--muted); }
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.detail-table th,
+.detail-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.detail-table th {
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .main-shell.with-sidebar {

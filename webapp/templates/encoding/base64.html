@@ -1,7 +1,57 @@
 {% extends "layouts/layout_encoding.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "Base64" %}
-{% set algorithm_desc = "Base64 编码页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>Base64</h1>
+<p class="algo-desc">Base64 编解码，将二进制数据与 ASCII 字符串互转。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>操作</label>
+      <select id="b64-op">
+        <option value="encode">编码 (Encode)</option>
+        <option value="decode">解码 (Decode)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>输入数据</label>
+      <textarea id="b64-input" rows="4" placeholder="输入待处理的数据"></textarea>
+    </div>
+    <div class="form-group">
+      <label>输入编码</label>
+      <select id="b64-encoding">
+        <option value="text">Text (文本)</option>
+        <option value="hex">Hex (十六进制)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>输出编码</label>
+      <select id="b64-output">
+        <option value="text">Text (文本)</option>
+        <option value="hex">Hex (十六进制)</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="b64-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runBase64()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>Base64 无额外参数，编码模式自动根据输入数据判断。</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="b64-result" class="result-box">等待执行...</div>
+    <div id="b64-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="b64-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
 {% endblock %}

@@ -1,7 +1,62 @@
 {% extends "layouts/layout_encoding.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "UTF-8" %}
-{% set algorithm_desc = "UTF-8 编码页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>UTF-8</h1>
+<p class="algo-desc">UTF-8 编解码，展示字符串与字节序列的转换过程。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>操作</label>
+      <select id="u8-op">
+        <option value="encode">编码 (Encode: 文本→字节)</option>
+        <option value="decode">解码 (Decode: 字节→文本)</option>
+      </select>
+    </div>
+    <div class="form-group" id="u8-input-group-text">
+      <label>输入文本</label>
+      <textarea id="u8-text" rows="4" placeholder="输入文本，如：中文ABC"></textarea>
+    </div>
+    <div class="form-group" id="u8-input-group-hex" style="display:none;">
+      <label>输入数据 (Hex)</label>
+      <textarea id="u8-hex" rows="4" placeholder="输入十六进制字节，如：e4b8ade69687"></textarea>
+    </div>
+    <div class="form-group">
+      <label>输出格式</label>
+      <select id="u8-output">
+        <option value="hex">Hex (十六进制)</option>
+        <option value="text">Text (文本)</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="u8-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runUtf8()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>UTF-8 无额外参数，编解码按标准规则自动处理。</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="u8-result" class="result-box">等待执行...</div>
+    <div id="u8-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="u8-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+document.getElementById('u8-op').addEventListener('change', function() {
+  var isEncode = this.value === 'encode';
+  document.getElementById('u8-input-group-text').style.display = isEncode ? '' : 'none';
+  document.getElementById('u8-input-group-hex').style.display = isEncode ? 'none' : '';
+});
+</script>
 {% endblock %}
