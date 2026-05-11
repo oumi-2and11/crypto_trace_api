@@ -1,8 +1,11 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section class="card">
-  <h1>{{ code }}</h1>
-  <p>{{ message }}</p>
+<section class="page-section" style="text-align:center;">
+  <div class="card">
+    <div class="error-code">{{ code }}</div>
+    <p class="error-msg">{{ message }}</p>
+    <a class="btn" href="{{ url_for('home.index') }}">返回首页</a>
+  </div>
 </section>
 {% endblock %}

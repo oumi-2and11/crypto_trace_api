@@ -1,9 +1,13 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<section class="card">
-  <h1>关于项目</h1>
-  <p>本项目使用 Python + Flask 构建课程作业平台，当前阶段实现了可运行的页面骨架与导航结构。</p>
-  <p>后续将逐步补全 utils/ 下算法逻辑与 API 处理。</p>
+<section class="page-section">
+  <div class="card">
+    <h1>关于项目</h1>
+    <p>本项目是网络空间安全编程技术与实例开发课程的期中项目，旨在构建一个密码算法接口化实现与可测验证平台。</p>
+    <p>平台基于 Python + Flask 开发，所有核心密码算法均从零实现（不依赖第三方密码库），并通过 RESTful JSON API 暴露接口，同时提供浏览器端可视化操作界面。</p>
+    <p>支持两级 Trace 追踪：Level 1 展示所有算法摘要，Level 2 展示 AES/SHA256/RSA/ECDSA 等算法的详细中间步骤，使算法执行过程透明可审计。</p>
+    <p>后续将逐步补全 utils/ 下算法逻辑与 API 处理。</p>
+  </div>
 </section>
 {% endblock %}

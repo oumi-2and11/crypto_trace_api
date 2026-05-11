@@ -3,12 +3,37 @@
 {% block content %}
 <section class="hero">
   <h1>信息安全密码算法接口化实现与可测验证平台</h1>
-  <p>当前为可运行系统骨架：页面导航、分类模板、算法页占位区已打通。</p>
+  <p class="lead">基于 Python + Flask 构建，从零实现密码算法，提供 RESTful API 接口与可视化执行轨迹追踪。</p>
   <div class="quick-links">
-    <a class="btn" href="{{ url_for('symmetric.index') }}">对称加密</a>
-    <a class="btn" href="{{ url_for('hash.index') }}">哈希与派生</a>
-    <a class="btn" href="{{ url_for('encoding.index') }}">编码</a>
-    <a class="btn" href="{{ url_for('asymmetric.index') }}">公钥与签名</a>
+    <a class="btn" href="{{ url_for('symmetric.index') }}"><span class="btn-icon">&#128273;</span> 对称加密</a>
+    <a class="btn" href="{{ url_for('hash.index') }}"><span class="btn-icon">&#35914;</span> 哈希与派生</a>
+    <a class="btn" href="{{ url_for('encoding.index') }}"><span class="btn-icon">&#128196;</span> 编码转换</a>
+    <a class="btn" href="{{ url_for('asymmetric.index') }}"><span class="btn-icon">&#128272;</span> 公钥与签名</a>
   </div>
 </section>
+
+<div class="container">
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">&#128273;</div>
+      <h3>对称加密</h3>
+      <p>支持 AES、SM4、RC6 算法，可设置密钥、IV、工作模式与填充方式。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">&#35914;</div>
+      <h3>哈希与派生</h3>
+      <p>SHA-1/256/3、RIPEMD-160 摘要，HMAC 消息认证与 PBKDF2 密钥派生。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">&#128196;</div>
+      <h3>编码转换</h3>
+      <p>Base64 编解码与 UTF-8 字符编码，数据格式互转工具。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">&#128272;</div>
+      <h3>公钥与签名</h3>
+      <p>RSA 密钥生成与签名、ECC 曲线运算、ECDSA 数字签名与验签。</p>
+    </div>
+  </div>
+</div>
 {% endblock %}
