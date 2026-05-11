@@ -4,12 +4,33 @@ from utils.tests.vectors import TEST_VECTORS
 from utils.common.timing import measure_time
 
 
+def _generic_hash_runner(algo_module: str, algo_func: str):
+    """生成通用哈希测试 runner。"""
+    def runner(case: dict) -> dict:
+        import importlib
+        mod = importlib.import_module(algo_module)
+        func = getattr(mod, algo_func)
+        result = func(
+            case["input"],
+            encoding=case.get("encoding", "hex"),
+            output=case.get("output", "hex"),
+        )
+        actual = result["result"].get(case["expected_field"], "")
+        expected = case["expected"]
+        return {
+            "name": case["name"],
+            "pass": actual == expected,
+            "actual": actual,
+            "expected": expected,
+            "time_ms": result.get("time_ms", 0),
+        }
+    return runner
+
+
 def _run_base64_case(case: dict) -> dict:
     from utils.encoding.base64_codec import encode, decode
     op = case["operation"]
-    kwargs = {
-        "output": case.get("output", "text"),
-    }
+    kwargs = {"output": case.get("output", "text")}
     if op == "encode":
         kwargs["encoding"] = case.get("encoding", "text")
         result = encode(case["input"], **kwargs)
@@ -18,13 +39,11 @@ def _run_base64_case(case: dict) -> dict:
         result = decode(case["input"], **kwargs)
 
     actual = result["result"].get(case["expected_field"], "")
-    expected = case["expected"]
-    passed = actual == expected
     return {
         "name": case["name"],
-        "pass": passed,
+        "pass": actual == case["expected"],
         "actual": actual,
-        "expected": expected,
+        "expected": case["expected"],
         "time_ms": result.get("time_ms", 0),
     }
 
@@ -40,32 +59,74 @@ def _run_utf8_case(case: dict) -> dict:
         result = decode(case["input"], **kwargs)
 
     actual = result["result"].get(case["expected_field"], "")
-    expected = case["expected"]
-    passed = actual == expected
     return {
         "name": case["name"],
-        "pass": passed,
+        "pass": actual == case["expected"],
         "actual": actual,
-        "expected": expected,
+        "expected": case["expected"],
         "time_ms": result.get("time_ms", 0),
     }
 
 
-def _run_sha256_case(case: dict) -> dict:
-    from utils.hash.sha256 import compute
+def _run_aes_case(case: dict) -> dict:
+    from utils.symmetric.aes import compute_encrypt, compute_decrypt
+    op = case["operation"]
+    kwargs = {
+        "key_raw": case["key"],
+        "encoding": "hex", "key_encoding": "hex",
+        "mode": case.get("mode", "ECB"),
+        "padding": case.get("padding", "pkcs7"),
+        "output": case.get("output", "hex"),
+    }
+    if op == "encrypt":
+        result = compute_encrypt(case["input"], **kwargs)
+    else:
+        result = compute_decrypt(case["input"], **kwargs)
+
+    actual = result["result"].get(case["expected_field"], "")
+    return {
+        "name": case["name"],
+        "pass": actual == case["expected"],
+        "actual": actual,
+        "expected": case["expected"],
+        "time_ms": result.get("time_ms", 0),
+    }
+
+
+def _run_hmac_case(case: dict) -> dict:
+    from utils.mac_kdf.hmac import compute
     result = compute(
-        case["input"],
-        encoding=case.get("encoding", "hex"),
+        key_raw=case["key"], data_raw=case["data"],
+        algorithm=case.get("algorithm", "HmacSHA256"),
+        key_encoding="hex", data_encoding="hex",
         output=case.get("output", "hex"),
     )
     actual = result["result"].get(case["expected_field"], "")
-    expected = case["expected"]
-    passed = actual == expected
     return {
         "name": case["name"],
-        "pass": passed,
+        "pass": actual == case["expected"],
         "actual": actual,
-        "expected": expected,
+        "expected": case["expected"],
+        "time_ms": result.get("time_ms", 0),
+    }
+
+
+def _run_pbkdf2_case(case: dict) -> dict:
+    from utils.mac_kdf.pbkdf2 import compute
+    result = compute(
+        password_raw=case["password"], salt_raw=case["salt"],
+        iterations=case.get("iterations", 1),
+        dk_len=case.get("dk_len", 32),
+        prf=case.get("prf", "HmacSHA256"),
+        password_encoding="hex", salt_encoding="hex",
+        output=case.get("output", "hex"),
+    )
+    actual = result["result"].get(case["expected_field"], "")
+    return {
+        "name": case["name"],
+        "pass": actual == case["expected"],
+        "actual": actual,
+        "expected": case["expected"],
         "time_ms": result.get("time_ms", 0),
     }
 
@@ -73,23 +134,19 @@ def _run_sha256_case(case: dict) -> dict:
 _DISPATCH = {
     "Base64": _run_base64_case,
     "UTF-8": _run_utf8_case,
-    "SHA-256": _run_sha256_case,
+    "SHA-256": _generic_hash_runner("utils.hash.sha256", "compute"),
+    "SHA-1": _generic_hash_runner("utils.hash.sha1", "compute"),
+    "SHA-3": _generic_hash_runner("utils.hash.sha3", "compute"),
+    "RIPEMD-160": _generic_hash_runner("utils.hash.ripemd160", "compute"),
+    "AES": _run_aes_case,
+    "HMAC": _run_hmac_case,
+    "PBKDF2": _run_pbkdf2_case,
 }
 
-# 占位算法（尚未实现）
-_NOT_IMPLEMENTED = {"AES", "SM4", "RC6", "SHA-1", "SHA-3", "RIPEMD-160",
-                    "HMAC", "PBKDF2", "RSA", "ECC", "ECDSA"}
+_NOT_IMPLEMENTED = {"SM4", "RC6", "RSA", "ECC", "ECDSA"}
 
 
 def run_selftest(algorithms: list = None) -> dict:
-    """运行自检。
-
-    Args:
-        algorithms: 要测试的算法列表，None 表示全部。
-
-    Returns:
-        dict: {"summary": {total, pass, fail}, "cases": [...]}
-    """
     with measure_time() as mt:
         cases = []
         target_algos = algorithms or list(TEST_VECTORS.keys()) + list(_NOT_IMPLEMENTED)

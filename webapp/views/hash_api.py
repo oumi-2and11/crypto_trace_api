@@ -1,4 +1,4 @@
-"""哈希类 API 端点：SHA-256 等。"""
+"""哈希类 API 端点：SHA-1/256/3/RIPEMD-160。"""
 
 from flask import Blueprint
 from webapp.api_response import handle_api_call, make_response
@@ -6,33 +6,37 @@ from utils.common.validation import CryptoError, validate_encoding, validate_out
 
 hash_api_bp = Blueprint("hash_api", __name__, url_prefix="/api/hash")
 
-_SUPPORTED_ALGORITHMS = {"SHA256", "SHA-256"}
-
-_NOT_IMPLEMENTED = {"SHA1", "SHA-1", "SHA3", "SHA-3", "RIPEMD160", "RIPEMD-160"}
-
 
 @hash_api_bp.route("/digest", methods=["POST"])
 @handle_api_call
 def hash_digest(data):
-    from utils.hash.sha256 import compute as sha256_compute
-
-    algorithm = data.get("algorithm", "SHA256").upper().replace("-", "")
+    algorithm = data.get("algorithm", "SHA256").upper()
     raw = data.get("data", "")
     encoding = validate_encoding(data.get("encoding", "hex"))
     output = validate_output_encoding(data.get("output", "hex"))
     trace = data.get("trace", False)
     trace_level = data.get("trace_level", 1)
 
-    # 标准化算法名
-    algo_key = algorithm
-    if algorithm in ("SHA256",):
-        algo_key = "SHA256"
+    algo_key = algorithm.replace("-", "").replace(" ", "")
 
     if algo_key in ("SHA256",):
+        from utils.hash.sha256 import compute as sha256_compute
         return sha256_compute(raw, encoding=encoding, output=output,
                               trace=trace, trace_level=trace_level)
 
-    if algorithm.replace("-", "") in ("SHA1", "SHA3", "RIPEMD160"):
-        return make_response(9002, f"Algorithm {algorithm} not implemented yet")
+    if algo_key in ("SHA1",):
+        from utils.hash.sha1 import compute as sha1_compute
+        return sha1_compute(raw, encoding=encoding, output=output,
+                            trace=trace, trace_level=trace_level)
+
+    if algo_key in ("SHA3", "SHA3256"):
+        from utils.hash.sha3 import compute as sha3_compute
+        return sha3_compute(raw, encoding=encoding, output=output,
+                            trace=trace, trace_level=trace_level)
+
+    if algo_key in ("RIPEMD160",):
+        from utils.hash.ripemd160 import compute as ripemd_compute
+        return ripemd_compute(raw, encoding=encoding, output=output,
+                              trace=trace, trace_level=trace_level)
 
     raise CryptoError(1005, algorithm)

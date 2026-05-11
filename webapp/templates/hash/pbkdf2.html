@@ -1,7 +1,66 @@
 {% extends "layouts/layout_hash.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "PBKDF2" %}
-{% set algorithm_desc = "PBKDF2 派生算法页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>PBKDF2</h1>
+<p class="algo-desc">PBKDF2 密钥派生函数，基于自写 HMAC，可配置迭代次数和输出长度。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>密码 (Hex)</label>
+      <input type="text" id="pbkdf2-password" placeholder="如：70617373776f7264">
+    </div>
+    <div class="form-group">
+      <label>盐 (Hex)</label>
+      <input type="text" id="pbkdf2-salt" placeholder="如：73616c74">
+    </div>
+    <div class="form-group form-row">
+      <label>PRF
+        <select id="pbkdf2-prf"><option value="HmacSHA256">HMAC-SHA256</option><option value="HmacSHA1">HMAC-SHA1</option></select>
+      </label>
+      <label>迭代次数
+        <input type="text" id="pbkdf2-iterations" value="1" style="width:80px;">
+      </label>
+      <label>输出长度
+        <input type="text" id="pbkdf2-dklen" value="32" style="width:60px;"> 字节
+      </label>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="pbkdf2-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runPbkdf2()">执行</button>
+  </article>
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>PBKDF2: 基于 HMAC 的密钥派生，迭代增强安全性。</p>
+  </article>
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="pbkdf2-result" class="result-box">等待执行...</div>
+    <div id="pbkdf2-time" class="result-time"></div>
+  </article>
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="pbkdf2-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+function runPbkdf2() {
+  apiCall('/api/kdf/pbkdf2', {
+    password: document.getElementById('pbkdf2-password').value,
+    salt: document.getElementById('pbkdf2-salt').value,
+    prf: document.getElementById('pbkdf2-prf').value,
+    iterations: parseInt(document.getElementById('pbkdf2-iterations').value) || 1,
+    dk_len: parseInt(document.getElementById('pbkdf2-dklen').value) || 32,
+    password_encoding: 'hex', salt_encoding: 'hex', output: 'hex',
+    trace: document.getElementById('pbkdf2-trace').checked, trace_level: 1
+  }, function(r) {
+    document.getElementById('pbkdf2-result').textContent = r.result ? r.result.derived_key : r.status_message;
+    document.getElementById('pbkdf2-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace('pbkdf2-trace', r.trace);
+  });
+}
+</script>
 {% endblock %}

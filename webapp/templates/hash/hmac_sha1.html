@@ -1,7 +1,53 @@
 {% extends "layouts/layout_hash.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "HMAC-SHA1" %}
-{% set algorithm_desc = "HMAC-SHA1 页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>HMAC-SHA1</h1>
+<p class="algo-desc">HMAC 基于自写 SHA-1，消息认证码计算。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>密钥 (Hex)</label>
+      <input type="text" id="hmac-sha1-key" placeholder="如：0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b">
+    </div>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="hmac-sha1-data" rows="3" placeholder="如：4869205468657265"></textarea>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="hmac-sha1-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runHmac('HmacSHA1','hmac-sha1')">执行</button>
+  </article>
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>HMAC-SHA1: 基于自写 SHA-1，块大小 64 字节。</p>
+  </article>
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="hmac-sha1-result" class="result-box">等待执行...</div>
+    <div id="hmac-sha1-time" class="result-time"></div>
+  </article>
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="hmac-sha1-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+function runHmac(algo, prefix) {
+  apiCall('/api/hmac/compute', {
+    algorithm: algo,
+    key: document.getElementById(prefix + '-key').value,
+    data: document.getElementById(prefix + '-data').value,
+    key_encoding: 'hex', data_encoding: 'hex', output: 'hex',
+    trace: document.getElementById(prefix + '-trace').checked, trace_level: 1
+  }, function(r) {
+    document.getElementById(prefix + '-result').textContent = r.result ? r.result.mac : r.status_message;
+    document.getElementById(prefix + '-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace(prefix + '-trace', r.trace);
+  });
+}
+</script>
 {% endblock %}

@@ -1,7 +1,98 @@
 {% extends "layouts/layout_symmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "AES" %}
-{% set algorithm_desc = "AES 对称加密算法页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>AES-128</h1>
+<p class="algo-desc">AES-128 对称加密算法，支持 ECB/CBC 模式和 PKCS7 填充，含 Level 2 Trace。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>操作</label>
+      <select id="aes-op">
+        <option value="encrypt">加密 (Encrypt)</option>
+        <option value="decrypt">解密 (Decrypt)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="aes-data" rows="3" placeholder="如：00112233445566778899aabbccddeeff"></textarea>
+    </div>
+    <div class="form-group">
+      <label>密钥 (Hex, 16字节)</label>
+      <input type="text" id="aes-key" placeholder="如：000102030405060708090a0b0c0d0e0f">
+    </div>
+    <div class="form-group">
+      <label>模式</label>
+      <select id="aes-mode">
+        <option value="ECB">ECB</option>
+        <option value="CBC">CBC</option>
+      </select>
+    </div>
+    <div class="form-group" id="aes-iv-group" style="display:none;">
+      <label>IV (Hex, 16字节)</label>
+      <input type="text" id="aes-iv" placeholder="如：000102030405060708090a0b0c0d0e0f">
+    </div>
+    <div class="form-group">
+      <label>填充</label>
+      <select id="aes-padding">
+        <option value="pkcs7">PKCS7</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="aes-trace"> 开启 Trace</label>
+      <label style="margin-left:16px;">级别
+        <select id="aes-trace-level"><option value="1">L1</option><option value="2">L2</option></select>
+      </label>
+    </div>
+    <button class="btn" onclick="runAes()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>AES-128: 128-bit 密钥，16字节分组，10轮变换。</p>
+    <p>ECB: 逐块独立加密; CBC: 链式异或，需 IV。</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="aes-result" class="result-box">等待执行...</div>
+    <div id="aes-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="aes-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+document.getElementById('aes-mode').addEventListener('change', function() {
+  document.getElementById('aes-iv-group').style.display = this.value === 'CBC' ? '' : 'none';
+});
+
+function runAes() {
+  var op = document.getElementById('aes-op').value;
+  var url = '/api/symmetric/aes/' + op;
+  var body = {
+    data: document.getElementById('aes-data').value,
+    key: document.getElementById('aes-key').value,
+    encoding: 'hex', key_encoding: 'hex',
+    mode: document.getElementById('aes-mode').value,
+    padding: document.getElementById('aes-padding').value,
+    output: 'hex',
+    trace: document.getElementById('aes-trace').checked,
+    trace_level: parseInt(document.getElementById('aes-trace-level').value)
+  };
+  var iv = document.getElementById('aes-iv').value;
+  if (body.mode === 'CBC' && iv) body.iv = iv;
+  apiCall(url, body, function(r) {
+    var field = op === 'encrypt' ? 'ciphertext' : 'plaintext';
+    document.getElementById('aes-result').textContent = r.result ? r.result[field] : r.status_message;
+    document.getElementById('aes-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace('aes-trace-box', r.trace);
+  });
+}
+</script>
 {% endblock %}
