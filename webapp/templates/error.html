@@ -2,10 +2,8 @@
 
 {% block content %}
 <section class="page-section" style="text-align:center;">
-  <div class="card">
-    <div class="error-code">{{ code }}</div>
-    <p class="error-msg">{{ message }}</p>
-    <a class="btn" href="{{ url_for('home.index') }}">返回首页</a>
-  </div>
+  <div class="error-code">{{ code }}</div>
+  <p class="error-msg">{{ message }}</p>
+  <a class="btn" href="{{ url_for('home.index') }}">返回首页</a>
 </section>
 {% endblock %}

@@ -3,13 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ page_title or "Crypto Trace API" }}</title>
+  <title>{% if page_title %}{{ page_title }} - {% endif %}CryptoTrace</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
   <header class="topbar">
     <div class="container topbar-inner">
-      <a class="brand" href="{{ url_for('home.index') }}">Crypto Trace API</a>
+      <div class="brand-group">
+        <a class="brand" href="{{ url_for('home.index') }}">CryptoTrace</a>
+        <span class="brand-sub">密码算法编程实现</span>
+      </div>
       <nav class="top-nav">
         {% set current_endpoint = request.endpoint or '' %}
         {% for item in top_nav %}
@@ -23,5 +26,11 @@
   <main class="container main-shell {% block main_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      信息安全密码算法接口化实现与可测验证平台 · CryptoTrace v0.1 (MVP)
+    </div>
+  </footer>
 </body>
 </html>
