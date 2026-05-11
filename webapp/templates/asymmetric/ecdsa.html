@@ -1,7 +1,144 @@
 {% extends "layouts/layout_asymmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "ECDSA" %}
-{% set algorithm_desc = "ECDSA 签名页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>ECDSA</h1>
+<p class="algo-desc">ECDSA 签名，基于自写 ECC secp160r1 曲线，含 Level 2 Trace。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128273; 密钥生成 <span class="card-badge">KeyGen</span></h3>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="ecdsa-keygen-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="ecdsaKeygen()">生成密钥</button>
+    <div class="form-group" style="margin-top:12px;">
+      <label>公钥 X (Hex)</label>
+      <input type="text" id="ecdsa-pub-x" readonly style="font-size:11px;">
+    </div>
+    <div class="form-group">
+      <label>公钥 Y (Hex)</label>
+      <input type="text" id="ecdsa-pub-y" readonly style="font-size:11px;">
+    </div>
+    <div class="form-group">
+      <label>私钥 (Hex)</label>
+      <input type="text" id="ecdsa-priv" readonly style="font-size:11px;">
+    </div>
+  </article>
+
+  <article class="card">
+    <h3>&#9998; 签名 <span class="card-badge">Sign</span></h3>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="ecdsa-sign-data" rows="2" placeholder="如：68656c6c6f"></textarea>
+    </div>
+    <div class="form-group">
+      <label>哈希算法</label>
+      <select id="ecdsa-hash-algo">
+        <option value="sha256">SHA-256</option>
+        <option value="sha1">SHA-1</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="ecdsa-sign-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="ecdsaSign()">签名</button>
+    <div class="form-group form-row" style="margin-top:12px;">
+      <label>r (Hex)
+        <input type="text" id="ecdsa-r" readonly style="font-size:11px;width:200px;">
+      </label>
+      <label>s (Hex)
+        <input type="text" id="ecdsa-s" readonly style="font-size:11px;width:200px;">
+      </label>
+    </div>
+  </article>
+
+  <article class="card">
+    <h3>&#9989; 验签 <span class="card-badge">Verify</span></h3>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="ecdsa-verify-data" rows="2" placeholder="如：68656c6c6f"></textarea>
+    </div>
+    <div class="form-group form-row">
+      <label>r (Hex)
+        <input type="text" id="ecdsa-verify-r" style="font-size:11px;width:200px;">
+      </label>
+      <label>s (Hex)
+        <input type="text" id="ecdsa-verify-s" style="font-size:11px;width:200px;">
+      </label>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="ecdsa-verify-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="ecdsaVerify()">验签</button>
+    <div id="ecdsa-verify-result" class="result-box" style="margin-top:12px;">等待验签...</div>
+    <div id="ecdsa-verify-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="ecdsa-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+function ecdsaKeygen() {
+  apiCall('/api/asymmetric/ecc/keygen', {
+    trace: document.getElementById('ecdsa-keygen-trace').checked, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      document.getElementById('ecdsa-pub-x').value = r.result.public_key_x;
+      document.getElementById('ecdsa-pub-y').value = r.result.public_key_y;
+      document.getElementById('ecdsa-priv').value = r.result.private_key;
+    } else {
+      alert(r.status_message);
+    }
+    renderTrace('ecdsa-trace', r.trace);
+  });
+}
+
+function ecdsaSign() {
+  apiCall('/api/asymmetric/ecdsa/sign', {
+    data: document.getElementById('ecdsa-sign-data').value,
+    encoding: 'hex',
+    private_key: document.getElementById('ecdsa-priv').value,
+    hash_algo: document.getElementById('ecdsa-hash-algo').value,
+    output: 'hex',
+    trace: document.getElementById('ecdsa-sign-trace').checked, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      document.getElementById('ecdsa-r').value = r.result.r;
+      document.getElementById('ecdsa-s').value = r.result.s;
+      document.getElementById('ecdsa-verify-r').value = r.result.r;
+      document.getElementById('ecdsa-verify-s').value = r.result.s;
+    } else {
+      alert(r.status_message);
+    }
+    renderTrace('ecdsa-trace', r.trace);
+  });
+}
+
+function ecdsaVerify() {
+  apiCall('/api/asymmetric/ecdsa/verify', {
+    data: document.getElementById('ecdsa-verify-data').value,
+    encoding: 'hex',
+    r: document.getElementById('ecdsa-verify-r').value,
+    s: document.getElementById('ecdsa-verify-s').value,
+    pub_x: document.getElementById('ecdsa-pub-x').value,
+    pub_y: document.getElementById('ecdsa-pub-y').value,
+    hash_algo: document.getElementById('ecdsa-hash-algo').value,
+    output: 'hex',
+    trace: document.getElementById('ecdsa-verify-trace').checked, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      var valid = r.result.valid;
+      document.getElementById('ecdsa-verify-result').textContent = valid ? '验签通过 ✓' : '验签失败 ✗';
+      document.getElementById('ecdsa-verify-result').style.color = valid ? '#16a34a' : '#dc2626';
+    } else {
+      document.getElementById('ecdsa-verify-result').textContent = r.status_message;
+    }
+    document.getElementById('ecdsa-verify-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace('ecdsa-trace', r.trace);
+  });
+}
+</script>
 {% endblock %}

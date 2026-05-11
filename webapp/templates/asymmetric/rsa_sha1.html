@@ -1,7 +1,127 @@
 {% extends "layouts/layout_asymmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "RSA-SHA1" %}
-{% set algorithm_desc = "RSA-SHA1 签名页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>RSA-SHA1</h1>
+<p class="algo-desc">RSA-SHA1 签名方案，基于自写 SHA-1 + RSA，PKCS#1 v1.5 填充，含 Level 2 Trace。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128273; 密钥生成 <span class="card-badge">KeyGen</span></h3>
+    <div class="form-group form-row">
+      <label>密钥位数
+        <select id="rs1-bits">
+          <option value="512">512</option>
+          <option value="1024" selected>1024</option>
+        </select>
+      </label>
+    </div>
+    <button class="btn" onclick="rs1Keygen()">生成密钥</button>
+    <div class="form-group" style="margin-top:12px;">
+      <label>n (Hex)</label>
+      <textarea id="rs1-n" rows="3" readonly style="font-size:11px;"></textarea>
+    </div>
+    <div class="form-group form-row">
+      <label>e
+        <input type="text" id="rs1-e" readonly style="width:80px;">
+      </label>
+      <label>d (Hex)
+        <input type="text" id="rs1-d" readonly style="width:120px;font-size:11px;">
+      </label>
+    </div>
+  </article>
+
+  <article class="card">
+    <h3>&#9998; 签名 <span class="card-badge">Sign</span></h3>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="rs1-sign-data" rows="2" placeholder="如：68656c6c6f"></textarea>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="rs1-sign-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="rs1Sign()">签名</button>
+    <div class="form-group" style="margin-top:12px;">
+      <label>签名结果 (Hex)</label>
+      <textarea id="rs1-signature" rows="2" readonly style="font-size:11px;"></textarea>
+    </div>
+  </article>
+
+  <article class="card">
+    <h3>&#9989; 验签 <span class="card-badge">Verify</span></h3>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="rs1-verify-data" rows="2" placeholder="如：68656c6c6f"></textarea>
+    </div>
+    <div class="form-group">
+      <label>签名 (Hex)</label>
+      <textarea id="rs1-verify-sig" rows="2" style="font-size:11px;"></textarea>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="rs1-verify-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="rs1Verify()">验签</button>
+    <div id="rs1-verify-result" class="result-box" style="margin-top:12px;">等待验签...</div>
+    <div id="rs1-verify-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="rs1-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+function rs1Keygen() {
+  apiCall('/api/asymmetric/rsa/keygen', {
+    bits: parseInt(document.getElementById('rs1-bits').value),
+    trace: true, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      document.getElementById('rs1-n').value = r.result.n;
+      document.getElementById('rs1-e').value = r.result.e;
+      document.getElementById('rs1-d').value = r.result.d;
+    } else {
+      alert(r.status_message);
+    }
+    renderTrace('rs1-trace', r.trace);
+  });
+}
+
+function rs1Sign() {
+  apiCall('/api/asymmetric/rsa-sha1/sign', {
+    data: document.getElementById('rs1-sign-data').value,
+    encoding: 'hex',
+    n: document.getElementById('rs1-n').value,
+    d: document.getElementById('rs1-d').value,
+    output: 'hex',
+    trace: document.getElementById('rs1-sign-trace').checked, trace_level: 2
+  }, function(r) {
+    document.getElementById('rs1-signature').value = r.result ? r.result.signature : r.status_message;
+    document.getElementById('rs1-verify-sig').value = r.result ? r.result.signature : '';
+    renderTrace('rs1-trace', r.trace);
+  });
+}
+
+function rs1Verify() {
+  apiCall('/api/asymmetric/rsa-sha1/verify', {
+    data: document.getElementById('rs1-verify-data').value,
+    encoding: 'hex',
+    signature: document.getElementById('rs1-verify-sig').value,
+    sig_encoding: 'hex',
+    n: document.getElementById('rs1-n').value,
+    e: document.getElementById('rs1-e').value,
+    output: 'hex',
+    trace: document.getElementById('rs1-verify-trace').checked, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      var valid = r.result.valid;
+      document.getElementById('rs1-verify-result').textContent = valid ? '验签通过 ✓' : '验签失败 ✗';
+      document.getElementById('rs1-verify-result').style.color = valid ? '#16a34a' : '#dc2626';
+    } else {
+      document.getElementById('rs1-verify-result').textContent = r.status_message;
+    }
+    renderTrace('rs1-trace', r.trace);
+  });
+}
+</script>
 {% endblock %}

@@ -131,6 +131,155 @@ def _run_pbkdf2_case(case: dict) -> dict:
     }
 
 
+def _run_rsa_case(case: dict) -> dict:
+    from utils.asymmetric.rsa import compute_keygen, compute_sign, compute_verify
+    bits = case.get("bits", 1024)
+    data_raw = case.get("data", "")
+    encoding = case.get("encoding", "hex")
+    hash_algo = case.get("hash_algo", "sha256")
+
+    try:
+        kg = compute_keygen(bits=bits)
+        n_hex = kg["result"]["n"]
+        e_hex = kg["result"]["e"]
+        d_hex = kg["result"]["d"]
+
+        sig = compute_sign(raw=data_raw, encoding=encoding,
+                           n_hex=n_hex, d_hex=d_hex, hash_algo=hash_algo)
+        sig_str = sig["result"]["signature"]
+
+        ver = compute_verify(raw=data_raw, encoding=encoding,
+                             signature_raw=sig_str, sig_encoding="hex",
+                             n_hex=n_hex, e_hex=e_hex, hash_algo=hash_algo)
+        actual = ver["result"]["valid"]
+    except Exception as e:
+        return {
+            "name": case["name"],
+            "pass": False,
+            "actual": str(e),
+            "expected": case["expected"],
+            "time_ms": 0,
+        }
+
+    expected = case["expected"]
+    return {
+        "name": case["name"],
+        "pass": actual == expected,
+        "actual": actual,
+        "expected": expected,
+        "time_ms": kg.get("time_ms", 0) + sig.get("time_ms", 0) + ver.get("time_ms", 0),
+    }
+
+
+def _run_rsa_sha1_case(case: dict) -> dict:
+    from utils.asymmetric.rsa import compute_keygen
+    from utils.asymmetric.rsa_sha1 import compute_sign, compute_verify
+    bits = case.get("bits", 1024)
+    data_raw = case.get("data", "")
+    encoding = case.get("encoding", "hex")
+
+    try:
+        kg = compute_keygen(bits=bits)
+        n_hex = kg["result"]["n"]
+        e_hex = kg["result"]["e"]
+        d_hex = kg["result"]["d"]
+
+        sig = compute_sign(raw=data_raw, encoding=encoding,
+                           n_hex=n_hex, d_hex=d_hex)
+        sig_str = sig["result"]["signature"]
+
+        ver = compute_verify(raw=data_raw, encoding=encoding,
+                             signature_raw=sig_str, sig_encoding="hex",
+                             n_hex=n_hex, e_hex=e_hex)
+        actual = ver["result"]["valid"]
+    except Exception as e:
+        return {
+            "name": case["name"],
+            "pass": False,
+            "actual": str(e),
+            "expected": case["expected"],
+            "time_ms": 0,
+        }
+
+    expected = case["expected"]
+    return {
+        "name": case["name"],
+        "pass": actual == expected,
+        "actual": actual,
+        "expected": expected,
+        "time_ms": kg.get("time_ms", 0) + sig.get("time_ms", 0) + ver.get("time_ms", 0),
+    }
+
+
+def _run_ecc_case(case: dict) -> dict:
+    from utils.asymmetric.ecc import compute_keygen, _is_on_curve
+
+    try:
+        kg = compute_keygen()
+        px = int(kg["result"]["public_key_x"], 16)
+        py = int(kg["result"]["public_key_y"], 16)
+        actual = _is_on_curve(px, py)
+    except Exception as e:
+        return {
+            "name": case["name"],
+            "pass": False,
+            "actual": str(e),
+            "expected": case["expected"],
+            "time_ms": 0,
+        }
+
+    expected = case["expected"]
+    return {
+        "name": case["name"],
+        "pass": actual == expected,
+        "actual": actual,
+        "expected": expected,
+        "time_ms": kg.get("time_ms", 0),
+    }
+
+
+def _run_ecdsa_case(case: dict) -> dict:
+    from utils.asymmetric.ecc import compute_keygen
+    from utils.asymmetric.ecdsa import compute_sign, compute_verify
+    data_raw = case.get("data", "")
+    encoding = case.get("encoding", "hex")
+    hash_algo = case.get("hash_algo", "sha256")
+
+    try:
+        kg = compute_keygen()
+        priv_hex = kg["result"]["private_key"]
+        pub_x_hex = kg["result"]["public_key_x"]
+        pub_y_hex = kg["result"]["public_key_y"]
+
+        sig = compute_sign(raw=data_raw, encoding=encoding,
+                           private_key_hex=priv_hex, hash_algo=hash_algo)
+        r_hex = sig["result"]["r"]
+        s_hex = sig["result"]["s"]
+
+        ver = compute_verify(raw=data_raw, encoding=encoding,
+                             r_hex=r_hex, s_hex=s_hex,
+                             pub_x_hex=pub_x_hex, pub_y_hex=pub_y_hex,
+                             hash_algo=hash_algo)
+        actual = ver["result"]["valid"]
+    except Exception as e:
+        return {
+            "name": case["name"],
+            "pass": False,
+            "actual": str(e),
+            "expected": case["expected"],
+            "time_ms": 0,
+        }
+
+    expected = case["expected"]
+    return {
+        "name": case["name"],
+        "pass": actual == expected,
+        "actual": actual,
+        "expected": expected,
+        "time_ms": kg.get("time_ms", 0) + sig.get("time_ms", 0) + ver.get("time_ms", 0),
+    }
+
+
 _DISPATCH = {
     "Base64": _run_base64_case,
     "UTF-8": _run_utf8_case,
@@ -141,9 +290,13 @@ _DISPATCH = {
     "AES": _run_aes_case,
     "HMAC": _run_hmac_case,
     "PBKDF2": _run_pbkdf2_case,
+    "RSA": _run_rsa_case,
+    "RSA-SHA1": _run_rsa_sha1_case,
+    "ECC": _run_ecc_case,
+    "ECDSA": _run_ecdsa_case,
 }
 
-_NOT_IMPLEMENTED = {"SM4", "RC6", "RSA", "ECC", "ECDSA"}
+_NOT_IMPLEMENTED = {"SM4", "RC6"}
 
 
 def run_selftest(algorithms: list = None) -> dict:

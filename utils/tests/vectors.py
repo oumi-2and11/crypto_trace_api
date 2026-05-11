@@ -169,4 +169,46 @@ TEST_VECTORS = {
             "expected": "120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b",
         },
     ],
+    "RSA": [
+        {
+            "name": "RSA keygen + sign + verify",
+            "operation": "keygen_sign_verify",
+            "bits": 512,
+            "data": "68656c6c6f",
+            "encoding": "hex",
+            "hash_algo": "sha256",
+            "expected_field": "self_consistent",
+            "expected": True,
+        },
+    ],
+    "RSA-SHA1": [
+        {
+            "name": "RSA-SHA1 keygen + sign + verify",
+            "operation": "keygen_sign_verify",
+            "bits": 512,
+            "data": "68656c6c6f",
+            "encoding": "hex",
+            "expected_field": "self_consistent",
+            "expected": True,
+        },
+    ],
+    "ECC": [
+        {
+            "name": "ECC keygen + point on curve",
+            "operation": "keygen_verify_point",
+            "expected_field": "on_curve",
+            "expected": True,
+        },
+    ],
+    "ECDSA": [
+        {
+            "name": "ECDSA keygen + sign + verify",
+            "operation": "keygen_sign_verify",
+            "data": "68656c6c6f",
+            "encoding": "hex",
+            "hash_algo": "sha256",
+            "expected_field": "self_consistent",
+            "expected": True,
+        },
+    ],
 }

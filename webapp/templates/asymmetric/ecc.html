@@ -1,7 +1,74 @@
 {% extends "layouts/layout_asymmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "ECC" %}
-{% set algorithm_desc = "ECC 页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>ECC</h1>
+<p class="algo-desc">ECC-160 椭圆曲线密码，secp160r1 曲线，有限域运算，含 Level 2 Trace。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128273; 密钥生成 <span class="card-badge">KeyGen</span></h3>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="ecc-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="eccKeygen()">生成密钥</button>
+    <div class="form-group" style="margin-top:12px;">
+      <label>公钥 X (Hex)</label>
+      <input type="text" id="ecc-pub-x" readonly style="font-size:11px;">
+    </div>
+    <div class="form-group">
+      <label>公钥 Y (Hex)</label>
+      <input type="text" id="ecc-pub-y" readonly style="font-size:11px;">
+    </div>
+    <div class="form-group">
+      <label>私钥 (Hex)</label>
+      <input type="text" id="ecc-priv" readonly style="font-size:11px;">
+    </div>
+    <div class="form-group">
+      <label>曲线</label>
+      <input type="text" id="ecc-curve" value="secp160r1" readonly>
+    </div>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p><strong>secp160r1 曲线参数：</strong></p>
+    <p>p = FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFF</p>
+    <p>a = FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFFFC</p>
+    <p>b = 1C97BEFC54BD7A8B65ACF89F81D4D4ADC565FA45</p>
+    <p>Gx = 4A96B5688EF573284664698968C38BB913CBFC82</p>
+    <p>Gy = 23A628553168947D59DCC912042351377AC5FB32</p>
+    <p>n = 0100000000000000000001F4C8F927AED3CA752257</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="ecc-result" class="result-box">等待生成密钥...</div>
+    <div id="ecc-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="ecc-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+function eccKeygen() {
+  apiCall('/api/asymmetric/ecc/keygen', {
+    trace: document.getElementById('ecc-trace').checked, trace_level: 2
+  }, function(r) {
+    if (r.result) {
+      document.getElementById('ecc-pub-x').value = r.result.public_key_x;
+      document.getElementById('ecc-pub-y').value = r.result.public_key_y;
+      document.getElementById('ecc-priv').value = r.result.private_key;
+      document.getElementById('ecc-curve').value = r.result.curve;
+      document.getElementById('ecc-result').textContent = '密钥生成完成';
+      document.getElementById('ecc-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    } else {
+      document.getElementById('ecc-result').textContent = r.status_message;
+    }
+    renderTrace('ecc-trace-box', r.trace);
+  });
+}
+</script>
 {% endblock %}

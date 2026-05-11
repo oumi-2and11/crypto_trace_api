@@ -13,6 +13,7 @@ from .views.hash_api import hash_api_bp
 from .views.selftest_api import selftest_api_bp
 from .views.symmetric_api import symmetric_api_bp
 from .views.hmac_kdf_api import hmac_kdf_api_bp
+from .views.asym_api import asym_api_bp
 
 
 TOP_NAV = [
@@ -43,6 +44,7 @@ def create_app(config_object: str = "config.Config") -> Flask:
     app.register_blueprint(selftest_api_bp)
     app.register_blueprint(symmetric_api_bp)
     app.register_blueprint(hmac_kdf_api_bp)
+    app.register_blueprint(asym_api_bp)
 
     @app.context_processor
     def inject_nav_data():
