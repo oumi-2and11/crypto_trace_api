@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block main_class %}with-sidebar{% endblock %}
+
+{% block content %}
+  <aside class="sidebar">
+    <h2>对称加密</h2>
+    <p>选择算法后查看占位输入、参数、输出与 trace 区域。</p>
+    <a href="{{ url_for('symmetric.aes') }}" class="sidebar-link {{ 'active' if current_algorithm == 'aes' else '' }}">AES</a>
+    <a href="{{ url_for('symmetric.sm4') }}" class="sidebar-link {{ 'active' if current_algorithm == 'sm4' else '' }}">SM4</a>
+    <a href="{{ url_for('symmetric.rc6') }}" class="sidebar-link {{ 'active' if current_algorithm == 'rc6' else '' }}">RC6</a>
+  </aside>
+  <section class="content">
+    {% block category_content %}{% endblock %}
+  </section>
+{% endblock %}

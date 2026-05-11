@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block main_class %}with-sidebar{% endblock %}
+
+{% block content %}
+  <aside class="sidebar">
+    <h2>哈希与派生</h2>
+    <p>可在此切换哈希、HMAC 与 PBKDF2 页面骨架。</p>
+    <a href="{{ url_for('hash.sha1') }}" class="sidebar-link {{ 'active' if current_algorithm == 'sha1' else '' }}">SHA1</a>
+    <a href="{{ url_for('hash.sha256') }}" class="sidebar-link {{ 'active' if current_algorithm == 'sha256' else '' }}">SHA256</a>
+    <a href="{{ url_for('hash.sha3') }}" class="sidebar-link {{ 'active' if current_algorithm == 'sha3' else '' }}">SHA3</a>
+    <a href="{{ url_for('hash.ripemd160') }}" class="sidebar-link {{ 'active' if current_algorithm == 'ripemd160' else '' }}">RIPEMD160</a>
+    <a href="{{ url_for('hash.hmac_sha1') }}" class="sidebar-link {{ 'active' if current_algorithm == 'hmac_sha1' else '' }}">HMAC-SHA1</a>
+    <a href="{{ url_for('hash.hmac_sha256') }}" class="sidebar-link {{ 'active' if current_algorithm == 'hmac_sha256' else '' }}">HMAC-SHA256</a>
+    <a href="{{ url_for('hash.pbkdf2') }}" class="sidebar-link {{ 'active' if current_algorithm == 'pbkdf2' else '' }}">PBKDF2</a>
+  </aside>
+  <section class="content">
+    {% block category_content %}{% endblock %}
+  </section>
+{% endblock %}

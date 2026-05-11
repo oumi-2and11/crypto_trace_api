@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title or "Crypto Trace API" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="{{ url_for('home.index') }}">Crypto Trace API</a>
+      <nav class="top-nav">
+        {% set current_endpoint = request.endpoint or '' %}
+        {% for item in top_nav %}
+          {% set is_active = current_endpoint == item.endpoint or current_endpoint.startswith(item.endpoint.split('.')[0] ~ '.') %}
+          <a class="top-nav-link {{ 'active' if is_active else '' }}" href="{{ url_for(item.endpoint) }}">{{ item.name }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="container main-shell {% block main_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
