@@ -16,22 +16,45 @@
   <div class="feature-card">
     <div class="feature-icon">&#128273;</div>
     <h3>对称加密</h3>
-    <p>支持 AES、SM4、RC6 算法，可设置密钥、IV、工作模式与填充方式。</p>
+    <p>支持 AES-128 (ECB/CBC, PKCS7)、SM4、RC6 算法，可设置密钥、IV、工作模式与填充方式，Level 2 Trace 展示轮函数细节。</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">&#35914;</div>
     <h3>哈希与派生</h3>
-    <p>SHA-1/256/3、RIPEMD-160 摘要，HMAC 消息认证与 PBKDF2 密钥派生。</p>
+    <p>SHA-1/SHA-256/SHA-3/RIPEMD-160 摘要算法，HMAC 消息认证与 PBKDF2 密钥派生，全部基于自写哈希实现。</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">&#128196;</div>
     <h3>编码转换</h3>
-    <p>Base64 编解码与 UTF-8 字符编码，数据格式互转工具。</p>
+    <p>Base64 编解码与 UTF-8 字符编码，数据格式互转工具，所有编解码逻辑从零实现。</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">&#128272;</div>
     <h3>公钥与签名</h3>
-    <p>RSA 密钥生成与签名、ECC 曲线运算、ECDSA 数字签名与验签。</p>
+    <p>RSA 密钥生成与 PKCS#1 签名、RSA-SHA1 签名方案、ECC-160 椭圆曲线运算、ECDSA 数字签名与验签。</p>
+  </div>
+</div>
+
+<div class="feature-grid" style="margin-top:24px;">
+  <div class="feature-card">
+    <div class="feature-icon" style="background:#dcfce7;color:#16a34a;">&#128200;</div>
+    <h3>两级 Trace 追踪</h3>
+    <p>Level 1 提供所有算法执行摘要（输入/输出/耗时），Level 2 展示 AES/SHA-256/RSA/ECDSA 等算法的详细中间步骤，使执行过程透明可审计。</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon" style="background:#fef9c3;color:#ca8a04;">&#127760;</div>
+    <h3>RESTful API</h3>
+    <p>全部算法通过 /api/* 端点暴露为 JSON 接口，统一响应格式（status_code / result / trace / time_ms），支持第三方程序调用。</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon" style="background:#fce7f3;color:#db2777;">&#9989;</div>
+    <h3>自动化自检</h3>
+    <p>内置标准测试向量自检引擎，覆盖 FIPS 197、FIPS 180-4、RFC 4231 等权威测试数据，一键验证所有算法正确性。</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon" style="background:#e0e7ff;color:#4f46e5;">&#128736;</div>
+    <h3>从零实现</h3>
+    <p>所有核心密码算法均从零手写实现，不依赖任何第三方密码库（如 PyCryptodome、cryptography），完全自主可控。</p>
   </div>
 </div>
 {% endblock %}

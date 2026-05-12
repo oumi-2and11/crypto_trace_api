@@ -280,6 +280,56 @@ def _run_ecdsa_case(case: dict) -> dict:
     }
 
 
+def _run_sm4_case(case: dict) -> dict:
+    from utils.symmetric.sm4 import compute_encrypt, compute_decrypt
+    op = case["operation"]
+    kwargs = {
+        "key_raw": case["key"],
+        "encoding": "hex", "key_encoding": "hex",
+        "mode": case.get("mode", "ECB"),
+        "padding": case.get("padding", "pkcs7"),
+        "output": case.get("output", "hex"),
+    }
+    if op == "encrypt":
+        result = compute_encrypt(case["input"], **kwargs)
+    else:
+        result = compute_decrypt(case["input"], **kwargs)
+
+    actual = result["result"].get(case["expected_field"], "")
+    return {
+        "name": case["name"],
+        "pass": actual == case["expected"],
+        "actual": actual,
+        "expected": case["expected"],
+        "time_ms": result.get("time_ms", 0),
+    }
+
+
+def _run_rc6_case(case: dict) -> dict:
+    from utils.symmetric.rc6 import compute_encrypt, compute_decrypt
+    op = case["operation"]
+    kwargs = {
+        "key_raw": case["key"],
+        "encoding": "hex", "key_encoding": "hex",
+        "mode": case.get("mode", "ECB"),
+        "padding": case.get("padding", "pkcs7"),
+        "output": case.get("output", "hex"),
+    }
+    if op == "encrypt":
+        result = compute_encrypt(case["input"], **kwargs)
+    else:
+        result = compute_decrypt(case["input"], **kwargs)
+
+    actual = result["result"].get(case["expected_field"], "")
+    return {
+        "name": case["name"],
+        "pass": actual == case["expected"],
+        "actual": actual,
+        "expected": case["expected"],
+        "time_ms": result.get("time_ms", 0),
+    }
+
+
 _DISPATCH = {
     "Base64": _run_base64_case,
     "UTF-8": _run_utf8_case,
@@ -294,9 +344,11 @@ _DISPATCH = {
     "RSA-SHA1": _run_rsa_sha1_case,
     "ECC": _run_ecc_case,
     "ECDSA": _run_ecdsa_case,
+    "SM4": _run_sm4_case,
+    "RC6": _run_rc6_case,
 }
 
-_NOT_IMPLEMENTED = {"SM4", "RC6"}
+_NOT_IMPLEMENTED = set()
 
 
 def run_selftest(algorithms: list = None) -> dict:

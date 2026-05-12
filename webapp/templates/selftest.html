@@ -3,13 +3,68 @@
 {% block content %}
 <section class="page-section">
   <h1>自检验证</h1>
-  <p>统一自检入口，使用标准测试向量对已实现的算法进行正确性校验。</p>
-  <button class="btn" onclick="runSelftest()" style="margin-bottom:20px;">运行自检</button>
-  <div id="selftest-summary" class="result-box" style="margin-bottom:16px;">点击"运行自检"开始</div>
+  <p>统一自检入口，使用标准测试向量对已实现的算法进行正确性校验。测试向量来源包括 FIPS 197、FIPS 180-4、RFC 4231 等权威标准文档。</p>
+
+  <div style="display:flex;align-items:center;gap:16px;margin:24px 0 20px;flex-wrap:wrap;">
+    <button class="btn" onclick="runSelftest()">运行自检</button>
+    <span style="color:var(--muted);font-size:13px;">点击按钮对所有已实现算法执行标准测试向量校验</span>
+  </div>
+
+  <div id="selftest-summary" class="result-box" style="margin-bottom:20px;">点击"运行自检"开始</div>
+
+  <h2 style="font-size:18px;font-weight:700;margin:20px 0 12px;">算法状态总览</h2>
   <div id="selftest-grid" class="selftest-grid">
+    <div class="selftest-item" data-algo="Base64">
+      <div class="algo-name">Base64</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="UTF-8">
+      <div class="algo-name">UTF-8</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="SHA-256">
+      <div class="algo-name">SHA-256</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="SHA-1">
+      <div class="algo-name">SHA-1</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="SHA-3">
+      <div class="algo-name">SHA-3</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="RIPEMD-160">
+      <div class="algo-name">RIPEMD-160</div>
+      <div class="algo-status">待验证</div>
+    </div>
     <div class="selftest-item" data-algo="AES">
       <div class="algo-name">AES</div>
-      <div class="algo-status">待实现</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="HMAC">
+      <div class="algo-name">HMAC</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="PBKDF2">
+      <div class="algo-name">PBKDF2</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="RSA">
+      <div class="algo-name">RSA</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="RSA-SHA1">
+      <div class="algo-name">RSA-SHA1</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="ECC">
+      <div class="algo-name">ECC</div>
+      <div class="algo-status">待验证</div>
+    </div>
+    <div class="selftest-item" data-algo="ECDSA">
+      <div class="algo-name">ECDSA</div>
+      <div class="algo-status">待验证</div>
     </div>
     <div class="selftest-item" data-algo="SM4">
       <div class="algo-name">SM4</div>
@@ -19,51 +74,9 @@
       <div class="algo-name">RC6</div>
       <div class="algo-status">待实现</div>
     </div>
-    <div class="selftest-item" data-algo="SHA-256">
-      <div class="algo-name">SHA-256</div>
-      <div class="algo-status">待验证</div>
-    </div>
-    <div class="selftest-item" data-algo="SHA-1">
-      <div class="algo-name">SHA-1</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="SHA-3">
-      <div class="algo-name">SHA-3</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="RIPEMD-160">
-      <div class="algo-name">RIPEMD-160</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="HMAC">
-      <div class="algo-name">HMAC</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="PBKDF2">
-      <div class="algo-name">PBKDF2</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="RSA">
-      <div class="algo-name">RSA</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="ECC">
-      <div class="algo-name">ECC</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="ECDSA">
-      <div class="algo-name">ECDSA</div>
-      <div class="algo-status">待实现</div>
-    </div>
-    <div class="selftest-item" data-algo="Base64">
-      <div class="algo-name">Base64</div>
-      <div class="algo-status">待验证</div>
-    </div>
-    <div class="selftest-item" data-algo="UTF-8">
-      <div class="algo-name">UTF-8</div>
-      <div class="algo-status">待验证</div>
-    </div>
   </div>
-  <div id="selftest-detail" style="margin-top:20px;"></div>
+
+  <h2 style="font-size:18px;font-weight:700;margin:28px 0 12px;">测试详情</h2>
+  <div id="selftest-detail" style="margin-top:4px;color:var(--muted);font-size:14px;">运行自检后显示各测试用例结果</div>
 </section>
 {% endblock %}

@@ -3,9 +3,56 @@
 {% block content %}
 <section class="page-section">
   <h1>关于项目</h1>
-  <p>本项目是网络空间安全编程技术与实例开发课程的期中项目，旨在构建一个密码算法接口化实现与可测验证平台。</p>
-  <p>平台基于 Python + Flask 开发，所有核心密码算法均从零实现（不依赖第三方密码库），并通过 RESTful JSON API 暴露接口，同时提供浏览器端可视化操作界面。</p>
-  <p>支持两级 Trace 追踪：Level 1 展示所有算法摘要，Level 2 展示 AES/SHA256/RSA/ECDSA 等算法的详细中间步骤，使算法执行过程透明可审计。</p>
-  <p>后续将逐步补全 utils/ 下算法逻辑与 API 处理。</p>
+  <p>本项目是<strong>网络空间安全编程技术与实例开发</strong>课程的期中项目，旨在构建一个密码算法接口化实现与可测验证平台。</p>
+  <p>平台基于 Python + Flask 开发，所有核心密码算法均<strong>从零实现</strong>（不依赖第三方密码库），并通过 RESTful JSON API 暴露接口，同时提供浏览器端可视化操作界面。</p>
+
+  <h2 style="font-size:20px;font-weight:700;margin:28px 0 12px;">已实现算法</h2>
+  <table class="detail-table">
+    <thead>
+      <tr><th>类别</th><th>算法</th><th>Trace 级别</th><th>参考标准</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>编码</td><td>Base64 / UTF-8</td><td>L1 / L2</td><td>RFC 4648 / RFC 3629</td></tr>
+      <tr><td>哈希</td><td>SHA-256</td><td>L1 + L2</td><td>FIPS 180-4</td></tr>
+      <tr><td>哈希</td><td>SHA-1</td><td>L1</td><td>FIPS 180-4</td></tr>
+      <tr><td>哈希</td><td>SHA-3 (Keccak)</td><td>L1</td><td>FIPS 202</td></tr>
+      <tr><td>哈希</td><td>RIPEMD-160</td><td>L1</td><td>ISO/IEC 10118-3</td></tr>
+      <tr><td>MAC/KDF</td><td>HMAC</td><td>L1</td><td>RFC 2104 / RFC 4231</td></tr>
+      <tr><td>MAC/KDF</td><td>PBKDF2</td><td>L1</td><td>RFC 8018</td></tr>
+      <tr><td>对称加密</td><td>AES-128</td><td>L1 + L2</td><td>FIPS 197</td></tr>
+      <tr><td>公钥密码</td><td>RSA</td><td>L1 + L2</td><td>PKCS#1 v1.5 (RFC 8017)</td></tr>
+      <tr><td>签名</td><td>RSA-SHA1</td><td>L1 + L2</td><td>PKCS#1 v1.5</td></tr>
+      <tr><td>椭圆曲线</td><td>ECC-160 (secp160r1)</td><td>L1 + L2</td><td>SEC 2</td></tr>
+      <tr><td>签名</td><td>ECDSA</td><td>L1 + L2</td><td>SEC 1</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="font-size:20px;font-weight:700;margin:28px 0 12px;">系统架构</h2>
+  <p>平台采用四层架构设计：</p>
+  <ul style="margin:0 0 16px 20px;color:var(--text-secondary);line-height:2;">
+    <li><strong>前端层</strong>：Jinja2 模板 + AJAX，三级模板继承（layout &rarr; layout_category &rarr; 页面）</li>
+    <li><strong>API 层</strong>：Flask Blueprint + 统一响应封装（status_code / result / trace / time_ms）</li>
+    <li><strong>算法层</strong>：utils/ 下按类别组织，每个算法独立文件，从零实现</li>
+    <li><strong>公共层</strong>：统一编解码、参数校验、TraceCollector、耗时统计</li>
+  </ul>
+
+  <h2 style="font-size:20px;font-weight:700;margin:28px 0 12px;">Trace 追踪策略</h2>
+  <p>支持两级 Trace 追踪，使算法执行过程透明可审计：</p>
+  <ul style="margin:0 0 16px 20px;color:var(--text-secondary);line-height:2;">
+    <li><strong>Level 1</strong>：所有算法通用摘要 — 算法名、操作、输入摘要、参数、输出摘要、耗时</li>
+    <li><strong>Level 2</strong>：关键算法详细中间步骤 — AES 轮状态采样、SHA-256 消息调度与寄存器采样、RSA 密钥生成与签名步骤、ECDSA 点运算过程</li>
+  </ul>
+
+  <h2 style="font-size:20px;font-weight:700;margin:28px 0 12px;">状态码设计</h2>
+  <table class="detail-table">
+    <thead><tr><th>范围</th><th>含义</th><th>示例</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>成功</td><td>OK</td></tr>
+      <tr><td>1xxx</td><td>参数错误</td><td>1002 Missing field, 1005 Unsupported algorithm</td></tr>
+      <tr><td>2xxx</td><td>算法执行错误</td><td>2001 Decrypt failed, 2004 RSA key invalid</td></tr>
+      <tr><td>3xxx</td><td>编码解码错误</td><td>3001 Hex decode error, 3002 Base64 decode error</td></tr>
+      <tr><td>9xxx</td><td>系统错误</td><td>9001 Internal error, 9002 Not implemented</td></tr>
+    </tbody>
+  </table>
 </section>
 {% endblock %}

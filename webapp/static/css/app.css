@@ -34,12 +34,14 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
+html { width: 100%; }
 
 a { color: var(--sky); text-decoration: none; transition: color var(--transition); }
 a:hover { color: var(--sky-hover); }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 28px; width: 100%; }
 
 /* ── Top Bar ── */
 .topbar {
@@ -100,6 +102,7 @@ a:hover { color: var(--sky-hover); }
 .main-shell {
   padding: 32px 28px 56px;
   flex: 1;
+  width: 100%;
 }
 .main-shell.with-sidebar {
   display: grid;
@@ -318,7 +321,11 @@ a:hover { color: var(--sky-hover); }
 
 /* ── Page Section (about, selftest, error) ── */
 .page-section {
-  margin: 48px 0;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--card-shadow);
+  margin: 0;
 }
 .page-section h1 {
   font-size: 26px;

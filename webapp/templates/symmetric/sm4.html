@@ -1,7 +1,97 @@
 {% extends "layouts/layout_symmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "SM4" %}
-{% set algorithm_desc = "SM4 对称加密算法页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>SM4</h1>
+<p class="algo-desc">SM4 国密分组密码算法，128-bit 密钥/分组，32 轮非线性迭代，支持 ECB/CBC 模式。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>操作</label>
+      <select id="sm4-op">
+        <option value="encrypt">加密 (Encrypt)</option>
+        <option value="decrypt">解密 (Decrypt)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="sm4-data" rows="3" placeholder="如：0123456789abcdeffedcba9876543210"></textarea>
+    </div>
+    <div class="form-group">
+      <label>密钥 (Hex, 16字节)</label>
+      <input type="text" id="sm4-key" placeholder="如：0123456789abcdeffedcba9876543210">
+    </div>
+    <div class="form-group">
+      <label>模式</label>
+      <select id="sm4-mode">
+        <option value="ECB">ECB</option>
+        <option value="CBC">CBC</option>
+      </select>
+    </div>
+    <div class="form-group" id="sm4-iv-group" style="display:none;">
+      <label>IV (Hex, 16字节)</label>
+      <input type="text" id="sm4-iv" placeholder="如：0123456789abcdeffedcba9876543210">
+    </div>
+    <div class="form-group">
+      <label>填充</label>
+      <select id="sm4-padding">
+        <option value="pkcs7">PKCS7</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="sm4-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runSm4()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>SM4: 128-bit 密钥，128-bit 分组，32 轮。</p>
+    <p>非线性变换 τ (S-Box 查表) + 线性变换 L。</p>
+    <p>ECB: 逐块独立加密; CBC: 链式异或，需 IV。</p>
+    <p>参考标准: GB/T 32907-2016</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="sm4-result" class="result-box">等待执行...</div>
+    <div id="sm4-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="sm4-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+document.getElementById('sm4-mode').addEventListener('change', function() {
+  document.getElementById('sm4-iv-group').style.display = this.value === 'CBC' ? '' : 'none';
+});
+
+function runSm4() {
+  var op = document.getElementById('sm4-op').value;
+  var url = '/api/symmetric/sm4/' + op;
+  var body = {
+    data: document.getElementById('sm4-data').value,
+    key: document.getElementById('sm4-key').value,
+    encoding: 'hex', key_encoding: 'hex',
+    mode: document.getElementById('sm4-mode').value,
+    padding: document.getElementById('sm4-padding').value,
+    output: 'hex',
+    trace: document.getElementById('sm4-trace').checked,
+    trace_level: 1
+  };
+  var iv = document.getElementById('sm4-iv').value;
+  if (body.mode === 'CBC' && iv) body.iv = iv;
+  apiCall(url, body, function(r) {
+    var field = op === 'encrypt' ? 'ciphertext' : 'plaintext';
+    document.getElementById('sm4-result').textContent = r.result ? r.result[field] : r.status_message;
+    document.getElementById('sm4-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace('sm4-trace-box', r.trace);
+  });
+}
+</script>
 {% endblock %}

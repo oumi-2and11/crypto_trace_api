@@ -1,7 +1,97 @@
 {% extends "layouts/layout_symmetric.html" %}
 
 {% block category_content %}
-{% set algorithm_title = "RC6" %}
-{% set algorithm_desc = "RC6 对称加密算法页面骨架。" %}
-{% include "partials/_algorithm_placeholder.html" %}
+<h1>RC6</h1>
+<p class="algo-desc">RC6-32/20/b 参数化分组密码，数据依赖旋转与模乘法，支持 ECB/CBC 模式。</p>
+
+<div class="grid-cards">
+  <article class="card">
+    <h3>&#128230; 输入区 <span class="card-badge">Input</span></h3>
+    <div class="form-group">
+      <label>操作</label>
+      <select id="rc6-op">
+        <option value="encrypt">加密 (Encrypt)</option>
+        <option value="decrypt">解密 (Decrypt)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>数据 (Hex)</label>
+      <textarea id="rc6-data" rows="3" placeholder="如：00000000000000000000000000000000"></textarea>
+    </div>
+    <div class="form-group">
+      <label>密钥 (Hex, 16/24/32字节)</label>
+      <input type="text" id="rc6-key" placeholder="如：00000000000000000000000000000000">
+    </div>
+    <div class="form-group">
+      <label>模式</label>
+      <select id="rc6-mode">
+        <option value="ECB">ECB</option>
+        <option value="CBC">CBC</option>
+      </select>
+    </div>
+    <div class="form-group" id="rc6-iv-group" style="display:none;">
+      <label>IV (Hex, 16字节)</label>
+      <input type="text" id="rc6-iv" placeholder="如：00000000000000000000000000000000">
+    </div>
+    <div class="form-group">
+      <label>填充</label>
+      <select id="rc6-padding">
+        <option value="pkcs7">PKCS7</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+    <div class="form-group form-row">
+      <label><input type="checkbox" id="rc6-trace"> 开启 Trace</label>
+    </div>
+    <button class="btn" onclick="runRc6()">执行</button>
+  </article>
+
+  <article class="card">
+    <h3>&#9881; 参数区 <span class="card-badge">Params</span></h3>
+    <p>RC6-32/20/b: w=32, r=20, 可变长度密钥。</p>
+    <p>128-bit 分组 (4×32-bit 字)，数据依赖旋转。</p>
+    <p>密钥扩展: P_w, Q_w 魔数生成 2r+4 个轮密钥。</p>
+    <p>参考: Rivest et al., "The RC6 Block Cipher" (1998)</p>
+  </article>
+
+  <article class="card">
+    <h3>&#128230; 输出区 <span class="card-badge">Output</span></h3>
+    <div id="rc6-result" class="result-box">等待执行...</div>
+    <div id="rc6-time" class="result-time"></div>
+  </article>
+
+  <article class="card">
+    <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
+    <div id="rc6-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
+  </article>
+</div>
+
+<script>
+document.getElementById('rc6-mode').addEventListener('change', function() {
+  document.getElementById('rc6-iv-group').style.display = this.value === 'CBC' ? '' : 'none';
+});
+
+function runRc6() {
+  var op = document.getElementById('rc6-op').value;
+  var url = '/api/symmetric/rc6/' + op;
+  var body = {
+    data: document.getElementById('rc6-data').value,
+    key: document.getElementById('rc6-key').value,
+    encoding: 'hex', key_encoding: 'hex',
+    mode: document.getElementById('rc6-mode').value,
+    padding: document.getElementById('rc6-padding').value,
+    output: 'hex',
+    trace: document.getElementById('rc6-trace').checked,
+    trace_level: 1
+  };
+  var iv = document.getElementById('rc6-iv').value;
+  if (body.mode === 'CBC' && iv) body.iv = iv;
+  apiCall(url, body, function(r) {
+    var field = op === 'encrypt' ? 'ciphertext' : 'plaintext';
+    document.getElementById('rc6-result').textContent = r.result ? r.result[field] : r.status_message;
+    document.getElementById('rc6-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
+    renderTrace('rc6-trace-box', r.trace);
+  });
+}
+</script>
 {% endblock %}
