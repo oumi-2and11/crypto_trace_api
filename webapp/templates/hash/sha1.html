@@ -31,7 +31,7 @@
   </article>
   <article class="card">
     <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
-    <div id="sha1-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+    <div id="sha1-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
   </article>
 </div>
 
@@ -48,7 +48,7 @@ function runHash(algo) {
   }, function(r) {
     document.getElementById(prefix + '-result').textContent = r.result ? r.result.digest : r.status_message;
     document.getElementById(prefix + '-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
-    renderTrace(prefix + '-trace', r.trace);
+    renderTrace(prefix + '-trace-box', r.trace);
   });
 }
 </script>

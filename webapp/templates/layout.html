@@ -47,7 +47,7 @@
       var field = op === 'encode' ? 'base64' : 'data';
       document.getElementById('b64-result').textContent = r.result ? r.result[field] : r.status_message;
       document.getElementById('b64-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
-      renderTrace('b64-trace', r.trace);
+      renderTrace('b64-trace-box', r.trace);
     });
   }
 
@@ -66,7 +66,7 @@
     apiCall(url, body, function(r) {
       document.getElementById('u8-result').textContent = r.result ? (r.result.data || JSON.stringify(r.result)) : r.status_message;
       document.getElementById('u8-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
-      renderTrace('u8-trace', r.trace);
+      renderTrace('u8-trace-box', r.trace);
     });
   }
 
@@ -81,7 +81,7 @@
     apiCall('/api/hash/digest', body, function(r) {
       document.getElementById('sha-result').textContent = r.result ? r.result.digest : r.status_message;
       document.getElementById('sha-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
-      renderTrace('sha-trace', r.trace);
+      renderTrace('sha-trace-box', r.trace);
     });
   }
 

@@ -42,7 +42,7 @@
   </article>
   <article class="card">
     <h3>&#128200; Trace 区 <span class="card-badge">Trace</span></h3>
-    <div id="pbkdf2-trace" class="trace-box">开启 Trace 后显示执行过程</div>
+    <div id="pbkdf2-trace-box" class="trace-box">开启 Trace 后显示执行过程</div>
   </article>
 </div>
 
@@ -59,7 +59,7 @@ function runPbkdf2() {
   }, function(r) {
     document.getElementById('pbkdf2-result').textContent = r.result ? r.result.derived_key : r.status_message;
     document.getElementById('pbkdf2-time').textContent = r.time_ms ? '耗时: ' + r.time_ms.toFixed(3) + ' ms' : '';
-    renderTrace('pbkdf2-trace', r.trace);
+    renderTrace('pbkdf2-trace-box', r.trace);
   });
 }
 </script>
